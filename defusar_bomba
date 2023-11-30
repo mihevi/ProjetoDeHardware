@@ -1,0 +1,49 @@
+#Import frameworks
+from random import randint
+import RPi.GPIO as GPIO
+import time
+
+#GPIO Setup
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.IN,pull_up_down=GPIO.PUD_UP) #Top Button
+GPIO.setup(18, GPIO.IN,pull_up_down=GPIO.PUD_UP) #Bottom Button
+GPIO.setup(27, GPIO.OUT) #Red
+GPIO.setup(22, GPIO.OUT) #Green
+
+def game():
+	#Random Number
+	x = randint(0,9)
+	#Determine if number is even or odd
+	y = x%2
+	#Story
+	print ("you must now choose: red wire or blue wire. You have 10 seconds.")
+	time.sleep(1)
+	print ("Choose wisely")
+	#Button Controls
+	while (GPIO.input(17) == True or GPIO.input(18) == True): #Listen for input from buttons
+		topButton = GPIO.input(17)
+		bottomButton = GPIO.input(18)
+		if (topButton == False): #Top Button Pressed
+			if (y == 0): #If the number was even and you pushed the top button, you lose
+				print("You have failed.")
+				GPIO.output(27,GPIO.HIGH)
+				time.sleep(.3)
+			else: #If the number was odd and you pushed the bottom button, you win.
+				print ("Well done!")
+				GPIO.output(22,GPIO.HIGH)
+				time.sleep(.3)
+		elif (bottomButton == False): #Button Button Pressed
+                	if (y == 1): #If the number was odd and you pushed the bottom button, you lose.
+                        	print("You have failed.")
+				GPIO.output(27,GPIO.HIGH)
+				time.sleep(.3)
+                	else: #If the number was even and you pushed the bottom button, you win.
+                        	print ("You are an international hero!")
+				GPIO.output(22,GPIO.HIGH)
+				time.sleep(.3)
+		time.sleep(.3) #Leave the light on for .3 second
+		GPIO.output(22,GPIO.LOW) #Turn off Green
+		GPIO.output(27,GPIO.LOW) #Turn off Red
+	print ("Exiting Game")
+	return
